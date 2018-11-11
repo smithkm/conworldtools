@@ -93,7 +93,7 @@ options = DEFAULTS.merge options
 dim = Dimensions.dimensions(filename)
 raise "Could not read #{ARGV[0]}" if dim.nil?
 
-a=options[:semimajor]*1.0>>"m"
+a=(options[:semimajor]*1.0>>"m").scalar
 f=options[:flattening]
 pixel_x = 360.0/dim[0]
 pixel_y = -180.0/dim[1]
@@ -102,7 +102,7 @@ if options[:auxfile]
   open(filename+".aux.xml", 'w') do |file|
     file.puts <<EOS
 <PAMDataset>
-  <SRS>GEOGCS["unnamed ellipse",DATUM["unknown",SPHEROID["unnamed",#{a.base_scalar},#{f}]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433]]</SRS>
+  <SRS>GEOGCS["unnamed ellipse",DATUM["unknown",SPHEROID["unnamed",#{a},#{f}]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433]]</SRS>
   <GeoTransform> -1.8000000000000000e+02,  #{pixel_x},  0.0000000000000000e+00,  9.0000000000000000e+01,  0.0000000000000000e+00, #{"%.7f"%pixel_y}</GeoTransform>
 </PAMDataset>
 EOS
