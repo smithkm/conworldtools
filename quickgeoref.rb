@@ -82,7 +82,7 @@ elsif options.include? :semiminor
   raise OptionParser::MissingArgument, "Can not specify semi-minor axis without semi-major axis" unless options.include? :semimajor
   raise OptionParser::InvalidArgument, "Semi-minor axis must be less than semi-major axis" unless options[:semimajor]>options[:semiminor]
   options[:flattening] = (options[:semimajor]/(options[:semimajor]-options[:semiminor])).to_f
-else
+elsif options.include? :semimajor
   options[:flattening] = DEFAULTS[:flattening]
   options[:semiminor] = options[:semimajor]*(1.0-1.0/options[:flattening])
 end
