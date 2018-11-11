@@ -81,7 +81,7 @@ if options.include? :flattening
 elsif options.include? :semiminor
   raise OptionParser::MissingArgument, "Can not specify semi-minor axis without semi-major axis" unless options.include? :semimajor
   raise OptionParser::InvalidArgument, "Semi-minor axis must be less than semi-major axis" unless options[:semimajor]>options[:semiminor]
-  options[:flattening] = (options[:semimajor]/(options[:semimajor]-options[:semiminor])).to_f
+  options[:flattening] = (1.0*options[:semimajor]/(options[:semimajor]-options[:semiminor])).to_f
 elsif options.include? :semimajor
   options[:flattening] = DEFAULTS[:flattening]
   options[:semiminor] = options[:semimajor]*(1.0-1.0/options[:flattening])
@@ -93,7 +93,7 @@ options = DEFAULTS.merge options
 dim = Dimensions.dimensions(filename)
 raise "Could not read #{ARGV[0]}" if dim.nil?
 
-a=options[:semimajor]>>"m"
+a=options[:semimajor]*1.0>>"m"
 f=options[:flattening]
 pixel_x = 360.0/dim[0]
 pixel_y = -180.0/dim[1]
@@ -102,8 +102,8 @@ if options[:auxfile]
   open(filename+".aux.xml", 'w') do |file|
     file.puts <<EOS
 <PAMDataset>
-  <SRS>GEOGCS["unnamed ellipse",DATUM["unknown",SPHEROID["unnamed",#{a},#{f}]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433]]</SRS>
-  <GeoTransform> -1.8000000000000000e+02,  #{pixel_x},  0.0000000000000000e+00,  9.0000000000000000e+01,  0.0000000000000000e+00, #{pixel_y}</GeoTransform>
+  <SRS>GEOGCS["unnamed ellipse",DATUM["unknown",SPHEROID["unnamed",#{a.base_scalar},#{f}]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433]]</SRS>
+  <GeoTransform> -1.8000000000000000e+02,  #{pixel_x},  0.0000000000000000e+00,  9.0000000000000000e+01,  0.0000000000000000e+00, #{"%.7f"%pixel_y}</GeoTransform>
 </PAMDataset>
 EOS
   end
@@ -135,12 +135,12 @@ if options[:prjfile]
   end
   open(projfile, 'w') do |file|
     file.puts <<EOS
-GEOGCS["unnamed ellipse",DATUM["unknown",SPHEROID["unnamed",#{a},#{f}]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433]]
+GEOGCS["unnamed ellipse",DATUM["unknown",SPHEROID["unnamed",#{a.base_scalar},#{f}]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433]]
 EOS
   end
   puts "Wrote projection sidecar file #{projfile}"
 end
 
-puts "Equatorial radius: #{options[:semimajor]*1.0>>"m"} (#{options[:semimajor]*1.0>>"R_E"})"
-puts "Polar radius: #{options[:semiminor]*1.0>>"m"} (#{options[:semiminor]*1.0>>"R_E_P"})"
+puts "Equatorial radius: #{(options[:semimajor]*1.0>>"m").to_s("%0.2f")} (#{options[:semimajor]*1.0>>"R_E"})"
+puts "Polar radius: #{(options[:semiminor]*1.0>>"m").to_s("%0.2f")} (#{options[:semiminor]*1.0>>"R_E_P"})"
 puts "Flattening: 1:#{f.to_f}"
